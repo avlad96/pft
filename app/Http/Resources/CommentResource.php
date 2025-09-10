@@ -14,6 +14,10 @@ class CommentResource extends JsonResource
             'body' => $this->body,
             'user' => new UserResource($this->whenLoaded('user')),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
+            'post' => $this->when(
+                $this->commentable_type === \App\Models\Post::class,
+                new PostResource($this->whenLoaded('commentable'))
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

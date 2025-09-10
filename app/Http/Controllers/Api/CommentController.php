@@ -33,7 +33,7 @@ class CommentController extends Controller
         return new CommentResource($comment);
     }
 
-    public function storeReply(StoreCommentRequest $request, Post $post, Comment $comment): CommentResource
+    public function storeReply(StoreCommentRequest $request, Comment $comment): CommentResource
     {
         $data = $request->validated();
 
@@ -47,7 +47,7 @@ class CommentController extends Controller
 
     public function show(Comment $comment): CommentResource
     {
-        $comment->load('replies', 'user');
+        $comment->load('user');
 
         return new CommentResource($comment);
     }
@@ -68,5 +68,12 @@ class CommentController extends Controller
         $comment->delete();
 
         return response()->noContent();
+    }
+
+    public function getReplies(Comment $comment): ResourceCollection
+    {
+        $comment->load('replies', 'replies.user');
+
+        return CommentResource::collection($comment->replies);
     }
 }
