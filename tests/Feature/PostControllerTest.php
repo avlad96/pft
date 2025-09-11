@@ -17,13 +17,13 @@ class PostControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = $this->createUser();
+        $this->user = User::factory()->create();
     }
 
     public function test_index_returns_only_active_posts(): void
     {
-        $activePost = Post::factory()->create(['user_id' => $this->user->id]);
-        $inactivePost = Post::factory()->create(['user_id' => $this->user->id, 'status' => 0]);
+        $activePost = Post::factory()->for($this->user)->create();
+        $inactivePost = Post::factory()->for($this->user)->create(['status' => 0]);
 
         $response = $this->getJson('/api/posts');
 
@@ -35,7 +35,6 @@ class PostControllerTest extends TestCase
     public function test_authenticated_user_can_store_post(): void
     {
         $this->actingAs($this->user);
-
         $response = $this->postJson('/api/posts', ['body' => 'some post']);
 
         $response->assertCreated();
@@ -53,7 +52,7 @@ class PostControllerTest extends TestCase
 
     public function test_show_return_post(): void
     {
-        $post = Post::factory()->create(['user_id' => $this->user->id]);
+        $post = Post::factory()->for($this->user)->create();
 
         $response = $this->getJson("/api/posts/{$post->id}");
 
@@ -64,7 +63,7 @@ class PostControllerTest extends TestCase
     public function test_owner_can_update_post(): void
     {
         $this->actingAs($this->user);
-        $post = Post::factory()->create(['user_id' => $this->user->id]);
+        $post = Post::factory()->for($this->user)->create();
 
         $response = $this->patchJson("/api/posts/{$post->id}", ['body' => 'updated post']);
 
@@ -76,17 +75,15 @@ class PostControllerTest extends TestCase
     {
         $this->actingAs($this->user);
         $someUser = User::factory()->create();
-        $post = Post::factory()->create(['user_id' => $someUser->id]);
+        $post = Post::factory()->for($someUser)->create();
 
-        $payload = ['body' => 'update from other user'];
-
-        $this->patchJson("/api/posts/{$post->id}", $payload)->assertForbidden();
+        $this->patchJson("/api/posts/{$post->id}", ['body' => 'update from other user'])->assertForbidden();
     }
 
     public function test_owner_can_delete_post(): void
     {
         $this->actingAs($this->user);
-        $post = Post::factory()->create(['user_id' => $this->user->id]);
+        $post = Post::factory()->for($this->user)->create();
 
         $this->deleteJson("/api/posts/{$post->id}")->assertNoContent();
 
@@ -97,15 +94,10 @@ class PostControllerTest extends TestCase
     {
         $this->actingAs($this->user);
         $someUser = User::factory()->create();
-        $post = Post::factory()->create(['user_id' => $someUser->id]);
+        $post = Post::factory()->for($someUser)->create();
 
         $this->deleteJson("/api/posts/{$post->id}")->assertForbidden();
 
         $this->assertDatabaseHas('posts', ['id' => $post->id]);
-    }
-
-    private function createUser(): User
-    {
-        return User::factory()->create();
     }
 }
