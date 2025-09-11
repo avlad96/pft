@@ -9,9 +9,13 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Knuckles\Scribe\Attributes\BodyParam;
+use Knuckles\Scribe\Attributes\Group;
 
 class AuthController extends Controller
 {
+
+    #[Group("Auth")]
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
@@ -31,6 +35,8 @@ class AuthController extends Controller
         ]);
     }
 
+    #[Group("Auth")]
+    #[BodyParam("password_confirmation", "string", required: true)]
     public function register(RegisterRequest $request)
     {
         $data = $request->validated();

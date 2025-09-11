@@ -11,9 +11,12 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Authenticated;
+use Knuckles\Scribe\Attributes\Group;
 
 class CommentController extends Controller
 {
+    #[Group("Comments")]
     public function index(Post $post): ResourceCollection
     {
         $post->load('comments.replies');
@@ -21,6 +24,8 @@ class CommentController extends Controller
         return CommentResource::collection($post->comments);
     }
 
+    #[Group("Comments")]
+    #[Authenticated]
     public function store(StoreCommentRequest $request, Post $post): CommentResource
     {
         $data = $request->validated();
@@ -33,6 +38,8 @@ class CommentController extends Controller
         return new CommentResource($comment);
     }
 
+    #[Group("Comments")]
+    #[Authenticated]
     public function storeReply(StoreCommentRequest $request, Comment $comment): CommentResource
     {
         $data = $request->validated();
@@ -45,6 +52,7 @@ class CommentController extends Controller
         return new CommentResource($comment);
     }
 
+    #[Group("Comments")]
     public function show(Comment $comment): CommentResource
     {
         $comment->load('user');
@@ -52,6 +60,8 @@ class CommentController extends Controller
         return new CommentResource($comment);
     }
 
+    #[Group("Comments")]
+    #[Authenticated]
     public function update(StoreCommentRequest $request, Comment $comment): CommentResource
     {
         Gate::authorize('update', $comment);
@@ -61,6 +71,8 @@ class CommentController extends Controller
         return new CommentResource($comment);
     }
 
+    #[Group("Comments")]
+    #[Authenticated]
     public function destroy(Comment $comment): Response
     {
         Gate::authorize('delete', $comment);
@@ -70,6 +82,7 @@ class CommentController extends Controller
         return response()->noContent();
     }
 
+    #[Group("Comments")]
     public function getReplies(Comment $comment): ResourceCollection
     {
         $comment->load('replies', 'replies.user');

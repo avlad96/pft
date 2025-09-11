@@ -10,14 +10,19 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Authenticated;
+use Knuckles\Scribe\Attributes\Group;
 
 class PostController extends Controller
 {
+    #[Group("Posts")]
     public function index(): ResourceCollection
     {
         return PostResource::collection(Post::active()->with('user')->get());
     }
 
+    #[Group("Posts")]
+    #[Authenticated]
     public function store(StorePostRequest $request): PostResource
     {
         return new PostResource(
@@ -25,6 +30,7 @@ class PostController extends Controller
         );
     }
 
+    #[Group("Posts")]
     public function show(Post $post): PostResource
     {
         $post->load('user');
@@ -32,6 +38,8 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
+    #[Group("Posts")]
+    #[Authenticated]
     public function update(StorePostRequest $request, Post $post): PostResource
     {
         Gate::authorize('update', $post);
@@ -41,6 +49,8 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
+    #[Group("Posts")]
+    #[Authenticated]
     public function destroy(Post $post): Response
     {
         Gate::authorize('delete', $post);

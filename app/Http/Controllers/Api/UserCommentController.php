@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
-use App\Http\Resources\PostResource;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Knuckles\Scribe\Attributes\Authenticated;
+use Knuckles\Scribe\Attributes\Group;
 
 class UserCommentController extends Controller
 {
+    #[Group("Users")]
     public function index(User $user): ResourceCollection
     {
         return CommentResource::collection(
@@ -32,6 +34,8 @@ class UserCommentController extends Controller
         );
     }
 
+    #[Group("Users")]
+    #[Authenticated]
     public function comments(): ResourceCollection
     {
         return CommentResource::collection(Auth::user()->comments);
